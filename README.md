@@ -17,11 +17,17 @@ pip install -r requirements.txt
 python run.py --iron-fly > /tmp/scan.txt   # in EarningsEdgeDetection repo
 python open_trades.py /tmp/scan.txt        # in this repo
 
+# anytime — check live midpoint quotes and PnL on open positions
+python get_quotes.py
+
+# anytime — publish positions report to GitHub Pages
+./publish_report.sh
+
 # ~9:45am EDT next morning — close all positions after market open
 python close_trades.py
 ```
 
-Both commands prompt `[y/N]` before submitting anything.
+Both `open_trades.py` and `close_trades.py` prompt `[y/N]` before submitting anything.
 
 ## Architecture
 
@@ -32,16 +38,38 @@ EarningsEdgeDetection stdout
         ↓
   IronFlyTrade           dataclass: ticker, expiration, strikes, net credit
         ↓
-  bot/alpaca_client.py   4 individual market orders per iron fly → Alpaca paper API
+  bot/order_manager.py   single mleg limit order; reprices every 10s until filled
         ↓
-  positions.json         persisted leg symbols for close_trades.py
+  bot/alpaca_client.py   REST calls to Alpaca paper API
+        ↓
+  positions.json         persisted leg symbols + order ID for close_trades.py
 ```
 
 **`bot/parser.py`** — Parses the `TIER 1 RECOMMENDED TRADES:` section only. Extracts expiration, strikes, and credit/debit via regex. Short put and call strikes can differ (e.g. CC's `$26.0P/$27.5C`).
 
-**`bot/alpaca_client.py`** — Wraps the Alpaca paper trading REST API (`https://paper-api.alpaca.markets`). OCC symbol format: ticker left-padded to 6 chars + YYMMDD + P/C + 8-digit strike ×1000. Example: `ANET  260508P00172500`. Adjust `_occ_symbol()` if Alpaca rejects symbols.
+**`bot/alpaca_client.py`** — Wraps the Alpaca paper trading REST API (`https://paper-api.alpaca.markets`). OCC symbol format: ticker + YYMMDD + P/C + 8-digit strike ×1000. Example: `ANET260508P00172500`. Also fetches live option snapshots from `data.alpaca.markets` for mid pricing.
+
+**`bot/order_manager.py`** — Submits iron flies as a single mleg limit order at the current mid credit. Reprices by $0.05 every 10 seconds until filled or credit reaches $0.
 
 **`bot/positions.py`** — Reads/writes `positions.json` at repo root. `save_positions` appends after each successful open; `clear_positions` is only called on full success in `close_trades.py` (partial failures leave the file intact for manual resolution).
+
+**`bot/quotes.py`** — Fetches live bid/ask/mid quotes and opening fill prices for all legs of a position. Shared by `get_quotes.py` and `generate_report.py`.
+
+**`generate_report.py`** — Writes `docs/index.html` with a live positions dashboard (quotes, fills, per-leg and net PnL). Published via `publish_report.sh`.
+
+## Positions report (GitHub Pages)
+
+`publish_report.sh` generates a live HTML dashboard and pushes it to GitHub Pages:
+
+```bash
+./publish_report.sh
+```
+
+To enable: go to repo **Settings → Pages**, set source to `main` branch, `/docs` folder. The report will be available at:
+
+```
+https://<your-github-username>.github.io/<repo-name>/
+```
 
 ## Scanner output format
 
@@ -64,4 +92,4 @@ TIER 1 RECOMMENDED TRADES:
 
 - **Paper trading only** — uses `paper-api.alpaca.markets`. Switch `BASE_URL` in `bot/alpaca_client.py` to go live.
 - `positions.json` is gitignored. If it gets out of sync with actual positions, edit or delete it manually before re-running.
-- Each iron fly is submitted as 4 separate market orders (sell short put, sell short call, buy long put, buy long call), not as a multi-leg combo order.
+- Each iron fly is submitted as a single multi-leg (mleg) limit order. If it can't fill, it reprices toward zero credit and raises if credit would go negative.

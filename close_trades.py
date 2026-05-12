@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from bot.alpaca_client import close_position
+from bot.order_manager import close_iron_fly
 from bot.positions import load_positions, clear_positions
 
 
@@ -21,10 +21,9 @@ def main():
         print("No open positions found in positions.json.")
         return
 
-    total_legs = sum(len(p["legs"]) for p in positions)
-    print(f"Found {len(positions)} trade(s), {total_legs} leg(s) to close:\n")
+    print(f"Found {len(positions)} trade(s) to close:\n")
     for p in positions:
-        print(f"  {p['ticker']} exp {p['expiration']} — {len(p['legs'])} legs")
+        print(f"  {p['ticker']} exp {p['expiration']}")
 
     print()
     confirm = input("Close all positions? [y/N] ").strip().lower()
@@ -35,17 +34,16 @@ def main():
     print()
     failed = []
     for position in positions:
-        for symbol in position["legs"]:
-            print(f"  Closing {symbol}...", end=" ", flush=True)
-            try:
-                close_position(symbol)
-                print("OK")
-            except Exception as e:
-                print(f"FAILED: {e}")
-                failed.append(symbol)
+        print(f"Closing {position['ticker']}...")
+        try:
+            close_iron_fly(position)
+            print(f"  {position['ticker']} OK")
+        except Exception as e:
+            print(f"  {position['ticker']} FAILED: {e}")
+            failed.append(position["ticker"])
 
     if failed:
-        print(f"\nWarning: {len(failed)} leg(s) failed to close: {failed}")
+        print(f"\nWarning: {len(failed)} trade(s) failed to close: {failed}")
         print("positions.json NOT cleared — resolve manually and re-run.")
     else:
         clear_positions()

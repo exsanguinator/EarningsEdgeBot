@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from bot.parser import parse_scan_output
-from bot.alpaca_client import submit_iron_fly
+from bot.order_manager import open_iron_fly
 from bot.positions import save_positions
 
 
@@ -32,7 +32,6 @@ def main():
         sys.exit(0)
 
     print(f"Found {len(trades)} Tier 1 trade(s):\n")
-
     for trade in trades:
         print(f"  {trade.ticker}: SHORT {trade.short_put}P/{trade.short_call}C | "
               f"LONG {trade.long_put}P/{trade.long_call}C | "
@@ -46,13 +45,13 @@ def main():
 
     print()
     for trade in trades:
-        print(f"Submitting {trade.ticker}...", end=" ", flush=True)
+        print(f"Submitting {trade.ticker}...")
         try:
-            orders = submit_iron_fly(trade)
-            save_positions(trade.ticker, trade.expiration, orders)
-            print(f"OK ({len(orders)} legs)")
+            order = open_iron_fly(trade)
+            save_positions(trade, order)
+            print(f"  {trade.ticker} OK")
         except Exception as e:
-            print(f"FAILED: {e}")
+            print(f"  {trade.ticker} FAILED: {e}")
 
     print("\nDone. Positions saved to positions.json.")
 

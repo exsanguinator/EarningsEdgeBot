@@ -1,0 +1,6 @@
+- [x] the long wings of the iron fly are too far OTM. need to calculate expected move based on short straddle credit.
+- [ ] filter on market cap, > 8b
+- [x] when closing trades, add to a PnL report (json file format, or .csv file), upload to a static web host in html format
+- [x] need a get_quotes.py that iterates through positions in positions.json and pulls midpoint quotes on opened positions
+- [x] get_quotes needs to pull the opening orders fill prices against the current midpoint quote to get a PnL of the position
+- [ ] create a dashboard static web page that summarizes open positions, and closed positions along with PnL. Upload report to a static web host
