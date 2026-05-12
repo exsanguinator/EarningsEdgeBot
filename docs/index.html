@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EarningsEdgeBot — Open Positions</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
+    h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .updated { color: #64748b; font-size: 0.85rem; margin-bottom: 2rem; }
+    section { margin-bottom: 2.5rem; }
+    h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; }
+    h2 .sub { font-weight: 400; color: #94a3b8; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 0.4rem 0.75rem; color: #94a3b8;
+          border-bottom: 1px solid #1e293b; font-weight: 500; }
+    td { padding: 0.4rem 0.75rem; border-bottom: 1px solid #1a2234; }
+    tr:last-child td { border-bottom: none; }
+    .mono { font-family: monospace; font-size: 0.8rem; }
+    .net { margin-top: 0.75rem; color: #94a3b8; font-size: 0.875rem; }
+    .net strong { color: #e2e8f0; }
+    .pos { color: #4ade80; }
+    .neg { color: #f87171; }
+    .total { font-size: 1rem; margin-top: 1rem; padding-top: 1rem;
+              border-top: 1px solid #1e293b; color: #94a3b8; }
+    .total strong { font-size: 1.1rem; }
+    .empty { color: #64748b; }
+  </style>
+</head>
+<body>
+  <h1>EarningsEdgeBot — Open Positions</h1>
+  <p class="updated">Updated 2026-05-12 06:57 UTC</p>
+  
+  
+        <section>
+          <h2>ASTS <span class="sub">exp 2026-05-15 &nbsp;·&nbsp; opened 2026-05-11</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Side</th><th>Symbol</th><th>Fill</th>
+                <th>Bid</th><th>Ask</th><th>Mid</th><th>PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">ASTS260515P00070000</td>
+                  <td>$1.60</td>
+                  <td>$1.46</td>
+                  <td>$1.56</td>
+                  <td>$1.51</td>
+                  <td><span class="neg">$-0.09</span></td>
+                </tr>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">ASTS260515C00096000</td>
+                  <td>$2.71</td>
+                  <td>$2.67</td>
+                  <td>$2.95</td>
+                  <td>$2.81</td>
+                  <td><span class="pos">$+0.10</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">ASTS260515P00083000</td>
+                  <td>$6.60</td>
+                  <td>$6.81</td>
+                  <td>$7.11</td>
+                  <td>$6.96</td>
+                  <td><span class="neg">$-0.36</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">ASTS260515C00083000</td>
+                  <td>$6.50</td>
+                  <td>$6.38</td>
+                  <td>$6.41</td>
+                  <td>$6.39</td>
+                  <td><span class="pos">$+0.11</span></td>
+                </tr>
+            </tbody>
+          </table>
+          <p class="net">
+            Net mid: <strong>$-9.03</strong> (credit)
+            &nbsp;&nbsp;
+            Net PnL: <strong class="neg">$-0.24</strong>
+          </p>
+        </section>
+        <section>
+          <h2>AMTM <span class="sub">exp 2026-05-15 &nbsp;·&nbsp; opened 2026-05-11</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Side</th><th>Symbol</th><th>Fill</th>
+                <th>Bid</th><th>Ask</th><th>Mid</th><th>PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">AMTM260515P00022500</td>
+                  <td>$0.60</td>
+                  <td>$0.52</td>
+                  <td>$0.77</td>
+                  <td>$0.65</td>
+                  <td><span class="pos">$+0.05</span></td>
+                </tr>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">AMTM260515C00027500</td>
+                  <td>$0.55</td>
+                  <td>$0.37</td>
+                  <td>$0.58</td>
+                  <td>$0.47</td>
+                  <td><span class="neg">$-0.08</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">AMTM260515P00025000</td>
+                  <td>$1.50</td>
+                  <td>$1.73</td>
+                  <td>$2.29</td>
+                  <td>$2.01</td>
+                  <td><span class="neg">$-0.51</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">AMTM260515C00025000</td>
+                  <td>$1.10</td>
+                  <td>$0.63</td>
+                  <td>$1.03</td>
+                  <td>$0.83</td>
+                  <td><span class="pos">$+0.27</span></td>
+                </tr>
+            </tbody>
+          </table>
+          <p class="net">
+            Net mid: <strong>$-1.72</strong> (credit)
+            &nbsp;&nbsp;
+            Net PnL: <strong class="neg">$-0.27</strong>
+          </p>
+        </section>
+        <section>
+          <h2>Q <span class="sub">exp 2026-05-15 &nbsp;·&nbsp; opened 2026-05-11</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Side</th><th>Symbol</th><th>Fill</th>
+                <th>Bid</th><th>Ask</th><th>Mid</th><th>PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">Q260515P00140000</td>
+                  <td>$2.35</td>
+                  <td>$2.22</td>
+                  <td>$3.02</td>
+                  <td>$2.62</td>
+                  <td><span class="pos">$+0.27</span></td>
+                </tr>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">Q260515C00170000</td>
+                  <td>$3.40</td>
+                  <td>$2.57</td>
+                  <td>$3.57</td>
+                  <td>$3.07</td>
+                  <td><span class="neg">$-0.33</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">Q260515P00155000</td>
+                  <td>$7.90</td>
+                  <td>$7.91</td>
+                  <td>$8.98</td>
+                  <td>$8.45</td>
+                  <td><span class="neg">$-0.55</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">Q260515C00155000</td>
+                  <td>$8.00</td>
+                  <td>$6.96</td>
+                  <td>$8.16</td>
+                  <td>$7.56</td>
+                  <td><span class="pos">$+0.44</span></td>
+                </tr>
+            </tbody>
+          </table>
+          <p class="net">
+            Net mid: <strong>$-10.32</strong> (credit)
+            &nbsp;&nbsp;
+            Net PnL: <strong class="neg">$-0.17</strong>
+          </p>
+        </section>
+        <section>
+          <h2>ARMK <span class="sub">exp 2026-05-15 &nbsp;·&nbsp; opened 2026-05-11</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Side</th><th>Symbol</th><th>Fill</th>
+                <th>Bid</th><th>Ask</th><th>Mid</th><th>PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">ARMK260515P00042000</td>
+                  <td>$0.95</td>
+                  <td>$0.33</td>
+                  <td>$0.58</td>
+                  <td>$0.45</td>
+                  <td><span class="neg">$-0.50</span></td>
+                </tr>
+                <tr>
+                  <td>Long</td>
+                  <td class="mono">ARMK260515C00047000</td>
+                  <td>$0.50</td>
+                  <td>$0.27</td>
+                  <td>$0.78</td>
+                  <td>$0.53</td>
+                  <td><span class="pos">$+0.03</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">ARMK260515P00044000</td>
+                  <td>$1.00</td>
+                  <td>$0.87</td>
+                  <td>$1.18</td>
+                  <td>$1.02</td>
+                  <td><span class="neg">$-0.02</span></td>
+                </tr>
+                <tr>
+                  <td>Short</td>
+                  <td class="mono">ARMK260515C00044000</td>
+                  <td>$1.35</td>
+                  <td>$1.52</td>
+                  <td>$2.22</td>
+                  <td>$1.87</td>
+                  <td><span class="neg">$-0.52</span></td>
+                </tr>
+            </tbody>
+          </table>
+          <p class="net">
+            Net mid: <strong>$-1.91</strong> (credit)
+            &nbsp;&nbsp;
+            Net PnL: <strong class="neg">$-1.01</strong>
+          </p>
+        </section>
+  <p class="total">Total PnL: <strong><span class="neg">$-1.69</span></strong></p>
+</body>
+</html>
