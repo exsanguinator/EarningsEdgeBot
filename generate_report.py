@@ -86,7 +86,7 @@ def _render(positions_data: list[dict], closed: list[dict]) -> str:
         net_mid = data["net_mid"]
         net_pnl = data["net_pnl"]
         mleg_fill = data.get("mleg_fill")
-        net_mid_label = "debit" if net_mid > 0 else "credit"
+        net_mid_label = "credit" if net_mid > 0 else "debit"
 
         rows = ""
         for leg in data["legs"]:

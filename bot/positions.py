@@ -36,10 +36,10 @@ def clear_positions() -> None:
 
 
 def append_closed_position(open_position: dict, open_order: dict, close_order: dict) -> None:
-    open_fill = float(open_order["filled_avg_price"]) if open_order.get("filled_avg_price") else None
-    close_fill = float(close_order["filled_avg_price"]) if close_order.get("filled_avg_price") else None
-    # open_fill is negative (credit received); close_fill is positive (debit paid)
-    total_pnl = round(-(open_fill + close_fill), 2) if (open_fill is not None and close_fill is not None) else None
+    open_fill = -float(open_order["filled_avg_price"]) if open_order.get("filled_avg_price") else None
+    close_fill = -float(close_order["filled_avg_price"]) if close_order.get("filled_avg_price") else None
+    # open_fill is positive (credit received); close_fill is negative (debit paid)
+    total_pnl = round(open_fill + close_fill, 2) if (open_fill is not None and close_fill is not None) else None
     closed = _load_closed()
     closed.append({
         "ticker": open_position["ticker"],

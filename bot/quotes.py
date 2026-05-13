@@ -19,7 +19,7 @@ def fetch_position_data(position: dict) -> dict:
             if leg.get("filled_avg_price")
         }
         if order.get("filled_avg_price"):
-            mleg_fill = float(order["filled_avg_price"])
+            mleg_fill = -float(order["filled_avg_price"])
     except Exception as e:
         quotes_error = str(e)
 
@@ -39,7 +39,7 @@ def fetch_position_data(position: dict) -> dict:
             mid = round((bid + ask) / 2, 2)
             fill = fills.get(symbol)
             entry.update({"bid": bid, "ask": ask, "mid": mid, "fill": fill})
-            net_mid += -mid if is_short else mid
+            net_mid += mid if is_short else -mid
             if fill is not None:
                 leg_pnl = (fill - mid) if is_short else (mid - fill)
                 entry["pnl"] = round(leg_pnl, 2)
