@@ -39,7 +39,7 @@ def fetch_position_data(position: dict) -> dict:
             mid = round((bid + ask) / 2, 2)
             fill = fills.get(symbol)
             entry.update({"bid": bid, "ask": ask, "mid": mid, "fill": fill})
-            net_mid += mid if is_short else -mid
+            net_mid += -mid if is_short else mid
             if fill is not None:
                 leg_pnl = (fill - mid) if is_short else (mid - fill)
                 entry["pnl"] = round(leg_pnl, 2)
