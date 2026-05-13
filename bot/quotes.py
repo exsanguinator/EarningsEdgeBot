@@ -9,6 +9,7 @@ def fetch_position_data(position: dict) -> dict:
     Adds to position: net_mid, net_pnl (None if any fills missing), quotes_error (str|None)
     """
     fills = {}
+    mleg_fill = None
     quotes_error = None
     try:
         order = get_order(position["order_id"])
@@ -17,6 +18,8 @@ def fetch_position_data(position: dict) -> dict:
             for leg in order.get("legs", [])
             if leg.get("filled_avg_price")
         }
+        if order.get("filled_avg_price"):
+            mleg_fill = float(order["filled_avg_price"])
     except Exception as e:
         quotes_error = str(e)
 
@@ -51,6 +54,7 @@ def fetch_position_data(position: dict) -> dict:
     return {
         **position,
         "legs": enriched_legs,
+        "mleg_fill": mleg_fill,
         "net_mid": round(net_mid, 2),
         "net_pnl": round(net_pnl, 2) if has_all_fills else None,
         "quotes_error": quotes_error,

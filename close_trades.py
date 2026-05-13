@@ -11,8 +11,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from bot.alpaca_client import get_order
 from bot.order_manager import close_iron_fly
-from bot.positions import load_positions, clear_positions
+from bot.positions import load_positions, clear_positions, append_closed_position
 
 
 def main():
@@ -36,7 +37,9 @@ def main():
     for position in positions:
         print(f"Closing {position['ticker']}...")
         try:
-            close_iron_fly(position)
+            close_order = close_iron_fly(position)
+            open_order = get_order(position["order_id"])
+            append_closed_position(position, open_order, close_order)
             print(f"  {position['ticker']} OK")
         except Exception as e:
             print(f"  {position['ticker']} FAILED: {e}")

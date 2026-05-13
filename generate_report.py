@@ -2,6 +2,7 @@
 """Generate docs/index.html — open positions with live quotes and PnL."""
 
 import os
+import re
 import sys
 from datetime import datetime, timezone
 
@@ -12,10 +13,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from bot.quotes import fetch_position_data
-from bot.positions import load_positions
+from bot.positions import load_positions, load_closed_positions
 
 DOCS_DIR = os.path.join(os.path.dirname(__file__), "docs")
 OUT_FILE = os.path.join(DOCS_DIR, "index.html")
+
+
+def _parse_symbol(symbol: str) -> tuple[str, str]:
+    """Returns (type, strike) parsed from an OCC symbol, e.g. ('Call', '$83.00')."""
+    m = re.search(r"\d{6}([PC])(\d{8})$", symbol)
+    if not m:
+        return ("—", "—")
+    opt_type = "Call" if m.group(1) == "C" else "Put"
+    strike = int(m.group(2)) / 1000
+    return (opt_type, f"${strike:.2f}")
 
 
 def _pnl_class(val):
@@ -30,7 +41,39 @@ def _fmt_pnl(val):
     return f"${val:+.2f}"
 
 
-def _render(positions_data: list[dict]) -> str:
+def _render_closed(closed: list[dict]) -> str:
+    if not closed:
+        return ""
+    rows = ""
+    total = 0.0
+    for c in sorted(closed, key=lambda x: x["closed_at"], reverse=True):
+        close_date = c["closed_at"][:10]
+        ticker = c["ticker"]
+        pnl = c["total_pnl"]
+        if pnl is not None:
+            total += pnl
+        rows += f"""
+              <tr>
+                <td>{close_date}</td>
+                <td>{ticker}</td>
+                <td class="{_pnl_class(pnl)}">{_fmt_pnl(pnl)}</td>
+              </tr>"""
+    total_html = f'<span class="{_pnl_class(total)}">{_fmt_pnl(total)}</span>'
+    return f"""
+        <section>
+          <h2>Closed Position Summary</h2>
+          <table>
+            <thead>
+              <tr><th>Close Date</th><th>Ticker</th><th>PnL</th></tr>
+            </thead>
+            <tbody>{rows}
+            </tbody>
+          </table>
+          <p class="total">Total PnL: <strong>{total_html}</strong></p>
+        </section>"""
+
+
+def _render(positions_data: list[dict], closed: list[dict]) -> str:
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     total_pnl = sum(d["net_pnl"] for d in positions_data if d["net_pnl"] is not None)
     total_pnl_html = f'<span class="{_pnl_class(total_pnl)}">{_fmt_pnl(total_pnl)}</span>'
@@ -42,15 +85,18 @@ def _render(positions_data: list[dict]) -> str:
         opened_at = data.get("opened_at", "")[:10]
         net_mid = data["net_mid"]
         net_pnl = data["net_pnl"]
+        mleg_fill = data.get("mleg_fill")
         net_mid_label = "debit" if net_mid > 0 else "credit"
 
         rows = ""
         for leg in data["legs"]:
+            opt_type, strike = _parse_symbol(leg["symbol"])
             if leg["error"]:
                 rows += f"""
                 <tr>
                   <td>{"Short" if leg["is_short"] else "Long"}</td>
-                  <td class="mono">{leg["symbol"]}</td>
+                  <td>{opt_type}</td>
+                  <td>{strike}</td>
                   <td colspan="5" class="neg">Error: {leg["error"]}</td>
                 </tr>"""
                 continue
@@ -59,7 +105,8 @@ def _render(positions_data: list[dict]) -> str:
             rows += f"""
                 <tr>
                   <td>{"Short" if leg["is_short"] else "Long"}</td>
-                  <td class="mono">{leg["symbol"]}</td>
+                  <td>{opt_type}</td>
+                  <td>{strike}</td>
                   <td>{fill_cell}</td>
                   <td>${leg["bid"]:.2f}</td>
                   <td>${leg["ask"]:.2f}</td>
@@ -73,7 +120,7 @@ def _render(positions_data: list[dict]) -> str:
           <table>
             <thead>
               <tr>
-                <th>Side</th><th>Symbol</th><th>Fill</th>
+                <th>Side</th><th>Type</th><th>Strike</th><th>Fill</th>
                 <th>Bid</th><th>Ask</th><th>Mid</th><th>PnL</th>
               </tr>
             </thead>
@@ -81,6 +128,8 @@ def _render(positions_data: list[dict]) -> str:
             </tbody>
           </table>
           <p class="net">
+            Fill: <strong>{"$" + f"{mleg_fill:.2f}" if mleg_fill is not None else "—"}</strong>
+            &nbsp;&nbsp;
             Net mid: <strong>${net_mid:.2f}</strong> ({net_mid_label})
             &nbsp;&nbsp;
             Net PnL: <strong class="{_pnl_class(net_pnl)}">{_fmt_pnl(net_pnl)}</strong>
@@ -125,6 +174,7 @@ def _render(positions_data: list[dict]) -> str:
   {no_positions}
   {position_blocks}
   {f'<p class="total">Total PnL: <strong>{total_pnl_html}</strong></p>' if positions_data else ''}
+  {_render_closed(closed)}
 </body>
 </html>"""
 
@@ -140,9 +190,11 @@ def main():
         positions_data.append(data)
         print("OK" if not data["quotes_error"] else f"WARN: {data['quotes_error']}")
 
+    closed = load_closed_positions()
+
     os.makedirs(DOCS_DIR, exist_ok=True)
     with open(OUT_FILE, "w") as f:
-        f.write(_render(positions_data))
+        f.write(_render(positions_data, closed))
 
     print(f"\nWrote {OUT_FILE}")
 

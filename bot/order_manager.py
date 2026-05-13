@@ -34,10 +34,12 @@ def close_iron_fly(position: dict) -> dict:
     """
     Close an iron fly as a single mleg limit order at current mid debit.
     Reprices every REPRICE_INTERVAL seconds, willing to pay more each time.
+    Long wings with a 0 bid are excluded and left to expire worthless.
     Returns the filled order dict.
     """
-    legs = _build_close_legs(position)
-    limit_price = _net_close_mid(position)  # positive = debit paid
+    quotes = {leg["symbol"]: alpaca_client.get_option_quote(leg["symbol"]) for leg in position["legs"]}
+    legs = _build_close_legs(position, quotes)
+    limit_price = _net_close_mid(position, quotes)  # positive = debit paid
 
     while True:
         order = alpaca_client.submit_mleg_order(legs, limit_price)
@@ -61,18 +63,21 @@ def _build_open_legs(trade: IronFlyTrade) -> list[dict]:
     ]
 
 
-def _build_close_legs(position: dict) -> list[dict]:
+def _build_close_legs(position: dict, quotes: dict) -> list[dict]:
     close_intent = {"sell_to_open": "buy_to_close",  "buy_to_open": "sell_to_close"}
     close_side   = {"sell_to_open": "buy",           "buy_to_open": "sell"}
-    return [
-        {
+    legs = []
+    for leg in position["legs"]:
+        if leg["position_intent"] == "buy_to_open" and quotes[leg["symbol"]][0] == 0:
+            print(f"    skipping worthless wing {leg['symbol']} (0 bid, will expire)")
+            continue
+        legs.append({
             "symbol": leg["symbol"],
             "side": close_side[leg["position_intent"]],
             "ratio_qty": "1",
             "position_intent": close_intent[leg["position_intent"]],
-        }
-        for leg in position["legs"]
-    ]
+        })
+    return legs
 
 
 def _net_open_mid(trade: IronFlyTrade) -> float:
@@ -83,11 +88,13 @@ def _net_open_mid(trade: IronFlyTrade) -> float:
     return round(credit, 2)
 
 
-def _net_close_mid(position: dict) -> float:
-    """Net debit at mid to close (positive = we pay)."""
+def _net_close_mid(position: dict, quotes: dict) -> float:
+    """Net debit at mid to close (positive = we pay). Excludes worthless long wings."""
     debit = 0.0
     for leg in position["legs"]:
-        bid, ask = alpaca_client.get_option_quote(leg["symbol"])
+        bid, ask = quotes[leg["symbol"]]
+        if leg["position_intent"] == "buy_to_open" and bid == 0:
+            continue
         mid = (bid + ask) / 2
         if leg["position_intent"] == "sell_to_open":  # closing = buy_to_close
             debit += mid

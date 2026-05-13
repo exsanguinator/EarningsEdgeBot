@@ -3,4 +3,7 @@
 - [x] when closing trades, add to a PnL report (json file format, or .csv file), upload to a static web host in html format
 - [x] need a get_quotes.py that iterates through positions in positions.json and pulls midpoint quotes on opened positions
 - [x] get_quotes needs to pull the opening orders fill prices against the current midpoint quote to get a PnL of the position
-- [ ] create a dashboard static web page that summarizes open positions, and closed positions along with PnL. Upload report to a static web host
+- [x] create a dashboard static web page that summarizes open positions along with PnL. Upload report to a static web host
+- [x] after closing an mleg position, create/append to a closed_position.json file with position summary along with pnl. Each closed position item should have: ticker, expiration, open order id, close order id, opened at date, closed at date, total close fill price, total open fill price, total pnl, legs array (symbol, position_intent)
+- [x] render summary of closed_position.json to the static dashboard. Render out a "Closed Position Summary" table with columns: close date, ticker, pnl. End with "Total PnL:"
+- [ ] what to do with legs with a 0 bid? unable to close these positions
