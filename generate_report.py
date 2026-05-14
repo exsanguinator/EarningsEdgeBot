@@ -50,21 +50,28 @@ def _render_closed(closed: list[dict]) -> str:
         close_date = c["closed_at"][:10]
         ticker = c["ticker"]
         pnl = c["total_pnl"]
+        open_fill = c.get("open_fill")
+        close_fill = c.get("close_fill")
         if pnl is not None:
             total += pnl
+        open_fill_cell = f"${open_fill:.2f}" if open_fill is not None else "—"
+        close_fill_cell = f"${close_fill:.2f}" if close_fill is not None else "—"
         rows += f"""
               <tr>
                 <td>{close_date}</td>
                 <td>{ticker}</td>
+                <td>{open_fill_cell}</td>
+                <td>{close_fill_cell}</td>
                 <td class="{_pnl_class(pnl)}">{_fmt_pnl(pnl)}</td>
               </tr>"""
     total_html = f'<span class="{_pnl_class(total)}">{_fmt_pnl(total)}</span>'
     return f"""
+        <hr class="section-divider">
         <section>
           <h2>Closed Position Summary</h2>
           <table>
             <thead>
-              <tr><th>Close Date</th><th>Ticker</th><th>PnL</th></tr>
+              <tr><th>Close Date</th><th>Ticker</th><th>Open Fill</th><th>Close Fill</th><th>PnL</th></tr>
             </thead>
             <tbody>{rows}
             </tbody>
@@ -110,7 +117,7 @@ def _render(positions_data: list[dict], closed: list[dict]) -> str:
                   <td>{fill_cell}</td>
                   <td>${leg["bid"]:.2f}</td>
                   <td>${leg["ask"]:.2f}</td>
-                  <td>${leg["mid"]:.2f}</td>
+                  <td>{"-" if leg["is_short"] else "+"}{leg["mid"]:.2f}</td>
                   <td>{pnl_cell}</td>
                 </tr>"""
 
@@ -143,7 +150,7 @@ def _render(positions_data: list[dict], closed: list[dict]) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EarningsEdgeBot — Open Positions</title>
+  <title>EarningsEdgeBot</title>
   <style>
     *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{ font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }}
@@ -166,11 +173,14 @@ def _render(positions_data: list[dict], closed: list[dict]) -> str:
               border-top: 1px solid #1e293b; color: #94a3b8; }}
     .total strong {{ font-size: 1.1rem; }}
     .empty {{ color: #64748b; }}
+    .section-divider {{ border: none; border-top: 2px solid #1e293b; margin: 3rem 0 2.5rem; }}
   </style>
 </head>
 <body>
-  <h1>EarningsEdgeBot — Open Positions</h1>
+  <h1>EarningsEdgeBot</h1>
   <p class="updated">Updated {updated}</p>
+  <hr class="section-divider">
+  <h2>Opened Positions</h2>
   {no_positions}
   {position_blocks}
   {f'<p class="total">Total PnL: <strong>{total_pnl_html}</strong></p>' if positions_data else ''}

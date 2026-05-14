@@ -3,10 +3,11 @@
 Close all iron fly positions opened by open_trades.py.
 
 Usage:
-    python close_trades.py
+    python close_trades.py [positions_file]
 
 Run ~9:45am EDT the morning after earnings, after market has opened.
 """
+import argparse
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,9 +18,17 @@ from bot.positions import load_positions, clear_positions, append_closed_positio
 
 
 def main():
-    positions = load_positions()
+    parser = argparse.ArgumentParser(description="Close all open iron fly positions.")
+    parser.add_argument("positions_file", nargs="?", default=None,
+                        help="Path to positions JSON file (default: positions.json)")
+    args = parser.parse_args()
+
+    kwargs = {"path": args.positions_file} if args.positions_file else {}
+
+    positions = load_positions(**kwargs)
+    positions_file = args.positions_file or "positions.json"
     if not positions:
-        print("No open positions found in positions.json.")
+        print(f"No open positions found in {positions_file}.")
         return
 
     print(f"Found {len(positions)} trade(s) to close:\n")
@@ -47,10 +56,10 @@ def main():
 
     if failed:
         print(f"\nWarning: {len(failed)} trade(s) failed to close: {failed}")
-        print("positions.json NOT cleared — resolve manually and re-run.")
+        print(f"{positions_file} NOT cleared — resolve manually and re-run.")
     else:
-        clear_positions()
-        print("\nAll positions closed. positions.json cleared.")
+        clear_positions(**kwargs)
+        print(f"\nAll positions closed. {positions_file} cleared.")
 
 
 if __name__ == "__main__":

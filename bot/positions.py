@@ -27,12 +27,12 @@ def save_positions(trade: IronFlyTrade, order: dict) -> None:
     _write(positions)
 
 
-def load_positions() -> list[dict]:
-    return _load()
+def load_positions(path: str = POSITIONS_FILE) -> list[dict]:
+    return _load(path)
 
 
-def clear_positions() -> None:
-    _write([])
+def clear_positions(path: str = POSITIONS_FILE) -> None:
+    _write([], path)
 
 
 def append_closed_position(open_position: dict, open_order: dict, close_order: dict) -> None:
@@ -60,15 +60,15 @@ def load_closed_positions() -> list[dict]:
     return _load_closed()
 
 
-def _load() -> list:
-    if not os.path.exists(POSITIONS_FILE):
+def _load(path: str = POSITIONS_FILE) -> list:
+    if not os.path.exists(path):
         return []
-    with open(POSITIONS_FILE) as f:
+    with open(path) as f:
         return json.load(f)
 
 
-def _write(data: list) -> None:
-    with open(POSITIONS_FILE, "w") as f:
+def _write(data: list, path: str = POSITIONS_FILE) -> None:
+    with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
 
